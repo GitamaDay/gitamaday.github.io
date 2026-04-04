@@ -296,6 +296,9 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   background: linear-gradient(160deg, #0e0e18 0%, #1a1a2a 100%);
   border: 1px solid var(--card-colour, var(--gold));
   box-shadow: 0 0 22px rgba(0,0,0,.6), inset 0 0 30px rgba(0,0,0,.3);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .card-front {
   background: linear-gradient(160deg, #12121e 0%, #1c1c2e 100%);
@@ -360,7 +363,10 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   cursor: pointer;
   opacity: .8;
   transition: opacity .2s;
-  padding: .3rem 0;
+  padding: .6rem .5rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
 }
 .card-transmission-btn:hover { opacity: 1; }
 #reading-btns {
@@ -623,6 +629,8 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   cursor: pointer;
   transition: background .2s;
   gap: 1rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .reading-list-btn:hover { background: rgba(184,137,42,.06); }
 .reading-list-name {
@@ -941,6 +949,40 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 /* ── Smooth scrolling on iOS ── */
 * { -webkit-overflow-scrolling: touch; }
 .modal { -webkit-overflow-scrolling: touch; }
+
+
+/* iOS touch support */
+.card-face, .card-transmission-btn, .reading-list-btn,
+.single-draw-btn, .info-box-toggle, .leaf-item,
+.choice-btn, .reading-action-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-transmission-btn { min-height: 44px; padding: .5rem; }
+
+
+@media (max-width: 768px) {
+  .card-transmission-btn {
+    font-size: .55rem !important;
+    padding: .6rem .4rem !important;
+    min-height: 36px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,.1);
+    margin-top: .3rem;
+  }
+  .card-being-name {
+    font-size: .82rem !important;
+  }
+  .card-keyword {
+    font-size: .72rem !important;
+  }
+  .card-front {
+    padding: .4rem .3rem !important;
+    overflow: visible !important;
+  }
+}
 
 </style>
 </head>
@@ -3054,7 +3096,7 @@ function renderSpread() {
         '<div class="card-face card-back" onclick="flipCard('+i+')">' +
           '<div class="card-sigil" style="color:'+colour+'">'+typeSigilMap[card.type]+'</div>' +
           '<p class="card-house-name">'+typeLabels[card.type]+'</p>' +
-          (i===0 ? '<p class="card-tap-hint">Click to reveal</p>' : '<p class="card-tap-hint locked-hint">await the one before</p>') +
+          (i===0 ? '<p class="card-tap-hint">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">await the one before</p>') +
         '</div>' +
         '<div class="card-face card-front">' +
           '<div class="card-img-wrap" id="cimg-'+i+'"></div>' +
@@ -3120,17 +3162,8 @@ function flipCard(i) {
 
 function openReadingBeing(i) {
   var card = readingCards[i];
-  var leafItems = document.querySelectorAll('.leaf-item');
-  var found = false;
-  leafItems.forEach(function(item) {
-    if (!found) {
-      var nameEl = item.querySelector('.leaf-name');
-      if (nameEl && nameEl.textContent.trim() === card.name) {
-        item.click();
-        found = true;
-      }
-    }
-  });
+  if (!card) return;
+  openBeing(card.type, card.name, card.keyword + ' · ');
 }
 
 // ── MIND BODY SOUL LAYOUT ─────────────────────────────────
@@ -3188,7 +3221,7 @@ function renderMindBodySoul() {
         '<div class="card-face card-back" onclick="flipCard('+i+')">' +
           '<div class="card-sigil" style="color:'+colour+'">'+typeSigilMap[card.type]+'</div>' +
           '<p class="card-house-name">'+typeLabels[card.type]+'</p>' +
-          (i===0 ? '<p class="card-tap-hint">Click to reveal</p>' : '<p class="card-tap-hint locked-hint">await the one before</p>') +
+          (i===0 ? '<p class="card-tap-hint">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">await the one before</p>') +
         '</div>' +
         '<div class="card-face card-front">' +
           '<div class="card-img-wrap" id="cimg-'+i+'"></div>' +
@@ -3292,7 +3325,7 @@ function renderLifeJourney() {
         '<div class="card-face card-back" onclick="flipCard('+i+')" style="border-color:'+colour+'">' +
           '<div class="card-sigil" style="color:'+colour+'">'+typeSigilMap[card.type]+'</div>' +
           '<p class="card-house-name" style="color:'+colour+'">'+typeLabels[card.type]+'</p>' +
-          (i===0 ? '<p class="card-tap-hint">Click to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
+          (i===0 ? '<p class="card-tap-hint">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
         '</div>' +
         '<div class="card-face card-front" style="padding:.5rem; border-color:'+colour+'">' +
           '<div id="cimg-'+i+'"></div>' +
@@ -3413,7 +3446,7 @@ function renderLifeAspect() {
           '<div class="card-face card-back" onclick="flipCard('+cardIdx+')" style="border-color:'+colour+'">' +
             '<div style="color:'+colour+'; margin-bottom:.5rem;">'+typeSigils[type]+'</div>' +
             '<p class="card-house-name" style="color:'+colour+'">'+typeLabels2[type]+'</p>' +
-            (cardIdx===0 ? '<p class="card-tap-hint">Click to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
+            (cardIdx===0 ? '<p class="card-tap-hint">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
           '</div>' +
           '<div class="card-face card-front" style="padding:.4rem; border-color:'+colour+'">' +
             '<div id="cimg-'+cardIdx+'"></div>' +
@@ -3581,7 +3614,7 @@ function renderNineGrid(titleText, posLabels, layoutName) {
           '<div class="card-face card-back" onclick="flipCard('+cardIdx+')" style="border-color:'+colour+'">' +
             '<div style="color:'+colour+'; margin-bottom:.5rem;">'+typeSigils[type]+'</div>' +
             '<p class="card-house-name" style="color:'+colour+'">'+typeLabels2[type]+'</p>' +
-            (isFirst ? '<p class="card-tap-hint">Click to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
+            (isFirst ? '<p class="card-tap-hint">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
           '</div>' +
           '<div class="card-face card-front" style="padding:.4rem; border-color:'+colour+'">' +
             '<div id="cimg-'+cardIdx+'"></div>' +
@@ -3695,7 +3728,7 @@ function drawSingle(type) {
       '<div class="card-face card-back" onclick="flipCard(0)" style="border-color:' + colour + '; height:300px;">' +
         '<div class="card-sigil" style="color:' + colour + '">' + sigil + '</div>' +
         '<p class="card-house-name" style="color:' + colour + '">' + label + '</p>' +
-        '<p class="card-tap-hint">Click to reveal</p>' +
+        '<p class="card-tap-hint">Tap to reveal</p>' +
       '</div>' +
       '<div class="card-face card-front" style="border-color:' + colour + '; padding:.8rem;">' +
         '<div id="cimg-0"></div>' +
@@ -3785,7 +3818,7 @@ function renderChakra(layoutName) {
         '<div class="card-face card-back" onclick="flipCard(' + ci + ')" style="border-color:' + colour + '">' +
           '<div style="color:' + colour + '; margin-bottom:.4rem; font-size:1.5rem;">' + sigil + '</div>' +
           '<p class="card-house-name" style="color:' + colour + '; font-size:.5rem;">' + label + '</p>' +
-          (isFirst ? '<p class="card-tap-hint" style="font-size:.45rem;">Click to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
+          (isFirst ? '<p class="card-tap-hint" style="font-size:.45rem;">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
         '</div>' +
         '<div class="card-face card-front" style="padding:.4rem; border-color:' + colour + '">' +
           '<div id="cimg-' + ci + '"></div>' +
@@ -3876,7 +3909,7 @@ function renderPlanetary(layoutName) {
         '<div class="card-face card-back" onclick="flipCard(' + i + ')" style="border-color:' + colour + '">' +
           '<div style="color:' + colour + '; margin-bottom:.4rem;">' + sigil + '</div>' +
           '<p class="card-house-name" style="color:' + colour + ';">' + label + '</p>' +
-          (isFirst ? '<p class="card-tap-hint">Click to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
+          (isFirst ? '<p class="card-tap-hint">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
         '</div>' +
         '<div class="card-face card-front" style="padding:.4rem; border-color:' + colour + '">' +
           '<div id="cimg-' + i + '"></div>' +
