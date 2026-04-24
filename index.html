@@ -3672,18 +3672,47 @@ function renderLifeJourney() {
   var typeSigilMap = {master:lineageSigils[0], angel:lineageSigils[1], crystal:lineageSigils[2]};
   var typeLabels   = {master:'Ascended Master', angel:'Angel', crystal:'Crystal Spirit'};
 
+  // Detect mobile — 3-col condensed layout vs 5-col full layout
+  var vw       = document.documentElement.clientWidth || window.innerWidth;
+  var isMobile = vw <= 600;
+
+  var gridAreas, colCount, colPx, cardW, cardH, imgMaxH, gapStr, labelSz;
+
+  if (isMobile) {
+    // 3-column version — same positions, empty outer buffers removed
+    gridAreas = '". a5 ." "a2 m5 a3" "m3 m1 m4" "a1 m2 a4" "m6 . a6" ". cr ."';
+    colCount  = 3;
+    colPx     = Math.floor((vw - 92) / 3);
+    cardW     = colPx - 2;
+    cardH     = Math.round(cardW * 1.58);
+    imgMaxH   = Math.round(cardH * 0.48);
+    gapStr    = '.7rem .3rem';
+    labelSz   = '.46rem';
+  } else {
+    // 5-column full layout for desktop / iPad
+    gridAreas = '". . a5 . ." ". a2 m5 a3 ." ". m3 m1 m4 ." ". a1 m2 a4 ." "m6 . . . a6" ". . cr . ."';
+    colCount  = 5;
+    colPx     = 130;
+    cardW     = 120;
+    cardH     = 190;
+    imgMaxH   = 95;
+    gapStr    = '1.2rem .8rem';
+    labelSz   = '.52rem';
+  }
+
+  var cardWpx = cardW + 'px';
+  var cardHpx = cardH + 'px';
+
   var outer = document.createElement('div');
-  outer.id  = 'lj-outer';
-  outer.style.cssText = 'width:100%; display:flex; justify-content:center; align-items:flex-start; overflow-x:auto; -webkit-overflow-scrolling:touch;';
+  outer.style.cssText = 'width:100%; display:flex; justify-content:center; align-items:flex-start;';
 
   var grid = document.createElement('div');
-  grid.id   = 'lj-grid';
   grid.style.cssText = [
     'display:grid',
-    'grid-template-areas:". . a5 . ." ". a2 m5 a3 ." ". m3 m1 m4 ." ". a1 m2 a4 ." "m6 . . . a6" ". . cr . ."',
-    'grid-template-columns:repeat(5,130px)',
+    'grid-template-areas:' + gridAreas,
+    'grid-template-columns:repeat(' + colCount + ',' + colPx + 'px)',
     'grid-template-rows:auto',
-    'gap:1.2rem .8rem',
+    'gap:' + gapStr,
     'padding:.5rem 0 1rem'
   ].join(';');
 
@@ -3692,16 +3721,18 @@ function renderLifeJourney() {
     var colour = typeColours[card.type];
 
     var cell = document.createElement('div');
-    cell.style.cssText = 'grid-area:' + pos.area + '; display:flex; flex-direction:column; align-items:center; gap:.5rem;';
+    cell.style.cssText = 'grid-area:' + pos.area + '; display:flex; flex-direction:column; align-items:center; gap:.4rem;';
 
     var cardDiv = document.createElement('div');
     cardDiv.className = 'reading-card' + (i===0 ? ' active' : ' locked');
     cardDiv.id = 'rcard-' + i;
-    cardDiv.style.cssText = '--card-colour:' + colour + '; width:120px; height:190px; perspective:900px; flex-shrink:0;';
+    // Use setProperty with important to override any CSS !important rules
+    cardDiv.setAttribute('style',
+      '--card-colour:' + colour + '; width:' + cardWpx + '; height:' + cardHpx + '; perspective:900px; flex-shrink:0;');
 
     cardDiv.innerHTML =
-      '<div class="card-inner" id="card-inner-'+i+'" style="width:120px;height:190px;">' +
-        '<div class="card-face card-back" onclick="flipCard('+i+')" style="border-color:'+colour+'">' +
+      '<div class="card-inner" id="card-inner-'+i+'" style="width:'+cardWpx+';height:'+cardHpx+';">' +
+        '<div class="card-face card-back" onclick="flipCard('+i+')" style="border-color:'+colour+';height:'+cardHpx+';">' +
           '<div class="card-sigil" style="color:'+colour+'">'+typeSigilMap[card.type]+'</div>' +
           '<p class="card-house-name" style="color:'+colour+'">'+typeLabels[card.type]+'</p>' +
           (i===0 ? '<p class="card-tap-hint">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
@@ -3710,13 +3741,12 @@ function renderLifeJourney() {
           '<div id="cimg-'+i+'"></div>' +
           '<p class="card-being-name" style="color:'+colour+';font-size:.88rem;line-height:1.2;" id="cname-'+i+'">'+card.name+'</p>' +
           '<p class="card-keyword" style="font-size:.74rem;margin-bottom:.3rem;" id="ckw-'+i+'">'+card.keyword+'</p>' +
-          '<button class="card-transmission-btn" style="color:'+colour+';font-size:.4rem;" onclick="openReadingBeing('+i+')">Full Transmission ↓</button>' +
+          '<button class="card-transmission-btn" style="color:'+colour+'" onclick="openReadingBeing('+i+')">Full Transmission ↓</button>' +
         '</div>' +
       '</div>';
 
     var label = document.createElement('p');
-    label.className = 'lj-label';
-    label.style.cssText = 'font-family:Cinzel,serif; font-size:.52rem; letter-spacing:.13em; text-transform:uppercase; color:'+colour+'; text-align:center; line-height:1.5; max-width:125px; opacity:.9;';
+    label.style.cssText = 'font-family:Cinzel,serif; font-size:'+labelSz+'; letter-spacing:.12em; text-transform:uppercase; color:'+colour+'; text-align:center; line-height:1.5; max-width:'+(colPx+4)+'px; opacity:.9;';
     label.textContent = pos.label;
 
     cell.appendChild(cardDiv);
@@ -3727,7 +3757,6 @@ function renderLifeJourney() {
   outer.appendChild(grid);
   spread.appendChild(outer);
 
-  // Buttons
   var btns = document.createElement('div');
   snapshotReading(fanState.layoutName);
   btns.id = 'reading-btns';
@@ -3738,33 +3767,13 @@ function renderLifeJourney() {
     '<button class="reading-action-btn close-btn" onclick="closeReading()">&#10005; Close Reading</button>';
   spread.appendChild(btns);
 
-  // Load images at natural size first
   var typeColourMap = {master:'var(--gold)', angel:'var(--sapphire)', crystal:'var(--teal)'};
   readingCards.forEach(function(card, i) {
     var imgSrc = beingImages[card.name];
     if (imgSrc) {
       var imgDiv = document.getElementById('cimg-'+i);
-      if (imgDiv) imgDiv.innerHTML = '<img src="'+imgSrc+'" style="width:100%;height:auto;max-height:95px;object-fit:contain;border-radius:2px;margin-bottom:.4rem;border-bottom:1px solid '+typeColourMap[card.type]+'" alt="'+card.name+'">';
+      if (imgDiv) imgDiv.innerHTML = '<img src="'+imgSrc+'" style="width:100%;height:auto;max-height:'+imgMaxH+'px;object-fit:contain;border-radius:2px;margin-bottom:.4rem;border-bottom:1px solid '+typeColourMap[card.type]+'" alt="'+card.name+'">';
     }
-  });
-
-  // After DOM settles, scale the grid down on small screens
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-      var gridEl  = document.getElementById('lj-grid');
-      var outerEl = document.getElementById('lj-outer');
-      if (!gridEl || !outerEl) return;
-      var availW   = outerEl.getBoundingClientRect().width;
-      var naturalW = gridEl.scrollWidth;
-      var naturalH = gridEl.scrollHeight;
-      if (availW > 0 && naturalW > availW) {
-        var scale = availW / naturalW;
-        // Shrink the outer to the scaled size so no scroll appears
-        outerEl.style.cssText = 'display:block; margin:0 auto; overflow:hidden; width:' + Math.round(naturalW * scale) + 'px; height:' + Math.round(naturalH * scale) + 'px;';
-        gridEl.style.transformOrigin = 'top left';
-        gridEl.style.transform = 'scale(' + scale + ')';
-      }
-    });
   });
 }
 
