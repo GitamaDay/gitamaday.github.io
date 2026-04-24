@@ -1197,9 +1197,15 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   .leaf-item { font-size: .58rem; }
 
   /* Reading spread — cards smaller but tall enough for content */
-  .reading-card { width: 90px !important; height: auto !important; }
-  .card-inner { width: 90px !important; height: 200px !important; }
-  .card-back { height: 200px !important; }
+  /* Standard reading layouts */
+  .reading-card { width: 90px; height: auto; }
+  .card-inner { width: 90px; height: 200px; }
+  .card-back { height: 200px; }
+
+  /* Life Journey — pure CSS vw sizing, no JS measurement needed */
+  #reading-spread.lj-mode .reading-card { width: calc((100vw - 96px) / 5) !important; height: auto !important; }
+  #reading-spread.lj-mode .card-inner   { width: calc((100vw - 96px) / 5) !important; height: calc(((100vw - 96px) / 5) * 1.6) !important; }
+  #reading-spread.lj-mode .card-back    { height: calc(((100vw - 96px) / 5) * 1.6) !important; }
   .card-being-name { font-size: .72rem !important; }
   .card-keyword { font-size: .62rem !important; }
 
@@ -3639,6 +3645,7 @@ function renderLifeJourney() {
   var spread = document.getElementById('reading-spread');
   spread.innerHTML = '';
   spread.style.cssText = 'display:block; width:100%;';
+  spread.classList.add('lj-mode');
 
   // Title
   var title = document.createElement('p');
@@ -3666,12 +3673,12 @@ function renderLifeJourney() {
   var typeSigilMap = {master:lineageSigils[0], angel:lineageSigils[1], crystal:lineageSigils[2]};
   var typeLabels   = {master:'Ascended Master', angel:'Angel', crystal:'Crystal Spirit'};
 
-  // Responsive sizing — measure the actual rendered container width
-  var spreadEl = document.getElementById('reading-spread');
-  var spreadW  = (spreadEl && spreadEl.offsetWidth > 0) ? spreadEl.offsetWidth : window.innerWidth;
-  var isMobile = spreadW < 600;
-  var available = Math.max(spreadW, 200);
-  var colPx    = isMobile ? Math.floor((available - 32) / 5) : 130;
+  // Responsive sizing — use CSS viewport width (most reliable on iPhone Safari)
+  var vw       = document.documentElement.clientWidth || window.innerWidth;
+  var isMobile = vw < 600;
+  // Subtract page padding (2rem each side = ~64px) and spread padding (0.5rem each side = ~16px on mobile)
+  var available = Math.max(vw - 80, 180);
+  var colPx    = isMobile ? Math.floor((available - 20) / 5) : 130;
   var cardW    = Math.min(colPx - 2, isMobile ? colPx : 120);
   var cardH    = Math.round(cardW * 1.58);
   var imgMaxH  = Math.round(cardH * 0.48);
@@ -3696,7 +3703,7 @@ function renderLifeJourney() {
   grid.style.cssText = [
     'display:grid',
     'grid-template-areas:". . a5 . ." ". a2 m5 a3 ." ". m3 m1 m4 ." ". a1 m2 a4 ." "m6 . . . a6" ". . cr . ."',
-    'grid-template-columns:repeat(5,' + colPx + 'px)',
+    'grid-template-columns:repeat(5,' + (isMobile ? 'calc((100vw - 96px) / 5)' : colPx + 'px') + ')',
     'grid-template-rows:auto',
     'gap:' + gapStr,
     'padding:.5rem 0 1rem'
@@ -4596,6 +4603,7 @@ function showQuickRef() {
 
 function closeReading() {
   var spread = document.getElementById('reading-spread');
+  spread.classList.remove('lj-mode');
   spread.style.display = 'none';
   spread.innerHTML = '';
   currentFlip  = 0;
