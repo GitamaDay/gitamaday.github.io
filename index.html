@@ -3647,65 +3647,43 @@ function renderLifeJourney() {
   spread.style.cssText = 'display:block; width:100%;';
   spread.classList.add('lj-mode');
 
-  // Title
   var title = document.createElement('p');
   title.className = 'reading-layout-title';
   title.textContent = 'Life Journey Reading';
   spread.appendChild(title);
 
   var positions = [
-    {label:'1M · Heart of the Matter',          area:'m1'},
-    {label:'2M · Support from Universal Love',   area:'m2'},
-    {label:'3M · Personal Support',              area:'m3'},
-    {label:'4M · Capable of Releasing',          area:'m4'},
-    {label:'5M · Oversees the Journey',          area:'m5'},
-    {label:'6M · Challenges',                    area:'m6'},
-    {label:'1A · Reason for the Reading',        area:'a1'},
-    {label:'2A · Direction',                     area:'a2'},
-    {label:'3A · Development',                   area:'a3'},
-    {label:'4A · Manifestation',                 area:'a4'},
-    {label:'5A · Crowning',                      area:'a5'},
-    {label:'6A · Blessing',                      area:'a6'},
-    {label:'Crystal · Grounding',                area:'cr'}
+    {label:'1M · Heart of the Matter',        area:'m1'},
+    {label:'2M · Support from Universal Love', area:'m2'},
+    {label:'3M · Personal Support',            area:'m3'},
+    {label:'4M · Capable of Releasing',        area:'m4'},
+    {label:'5M · Oversees the Journey',        area:'m5'},
+    {label:'6M · Challenges',                  area:'m6'},
+    {label:'1A · Reason for the Reading',      area:'a1'},
+    {label:'2A · Direction',                   area:'a2'},
+    {label:'3A · Development',                 area:'a3'},
+    {label:'4A · Manifestation',               area:'a4'},
+    {label:'5A · Crowning',                    area:'a5'},
+    {label:'6A · Blessing',                    area:'a6'},
+    {label:'Crystal · Grounding',              area:'cr'}
   ];
 
   var typeColours  = {master:'var(--gold)', angel:'var(--sapphire)', crystal:'var(--teal)'};
   var typeSigilMap = {master:lineageSigils[0], angel:lineageSigils[1], crystal:lineageSigils[2]};
   var typeLabels   = {master:'Ascended Master', angel:'Angel', crystal:'Crystal Spirit'};
 
-  // Responsive sizing — use CSS viewport width (most reliable on iPhone Safari)
-  var vw       = document.documentElement.clientWidth || window.innerWidth;
-  var isMobile = vw < 600;
-  // Subtract page padding (2rem each side = ~64px) and spread padding (0.5rem each side = ~16px on mobile)
-  var available = Math.max(vw - 80, 180);
-  var colPx    = isMobile ? Math.floor((available - 20) / 5) : 130;
-  var cardW    = Math.min(colPx - 2, isMobile ? colPx : 120);
-  var cardH    = Math.round(cardW * 1.58);
-  var imgMaxH  = Math.round(cardH * 0.48);
-  var gapStr   = isMobile ? '.4rem .2rem' : '1.2rem .8rem';
-  var labelMax = cardW + 6;
-  var nameSz   = isMobile ? '.7rem'  : '.88rem';
-  var kwSz     = isMobile ? '.58rem' : '.74rem';
-  var btnSz    = isMobile ? '.32rem' : '.4rem';
-  var labelSz  = isMobile ? '.42rem' : '.52rem';
-  var cardWpx  = cardW + 'px';
-  var cardHpx  = cardH + 'px';
-  var sigilSz  = isMobile ? '1.1rem' : '1.6rem';
-  var hnSz     = isMobile ? '.36rem' : '.45rem';
-  var hintSz   = isMobile ? '.36rem' : '.44rem';
-  var cellPad  = isMobile ? '.3rem'  : '.5rem';
-
-  // Outer wrapper — overflow-x:auto keeps layout intact on very small screens
   var outer = document.createElement('div');
+  outer.id  = 'lj-outer';
   outer.style.cssText = 'width:100%; display:flex; justify-content:center; align-items:flex-start; overflow-x:auto; -webkit-overflow-scrolling:touch;';
 
   var grid = document.createElement('div');
+  grid.id   = 'lj-grid';
   grid.style.cssText = [
     'display:grid',
     'grid-template-areas:". . a5 . ." ". a2 m5 a3 ." ". m3 m1 m4 ." ". a1 m2 a4 ." "m6 . . . a6" ". . cr . ."',
-    'grid-template-columns:repeat(5,' + (isMobile ? 'calc((100vw - 96px) / 5)' : colPx + 'px') + ')',
+    'grid-template-columns:repeat(5,130px)',
     'grid-template-rows:auto',
-    'gap:' + gapStr,
+    'gap:1.2rem .8rem',
     'padding:.5rem 0 1rem'
   ].join(';');
 
@@ -3714,30 +3692,31 @@ function renderLifeJourney() {
     var colour = typeColours[card.type];
 
     var cell = document.createElement('div');
-    cell.style.cssText = 'grid-area:' + pos.area + '; display:flex; flex-direction:column; align-items:center; gap:.35rem;';
+    cell.style.cssText = 'grid-area:' + pos.area + '; display:flex; flex-direction:column; align-items:center; gap:.5rem;';
 
     var cardDiv = document.createElement('div');
     cardDiv.className = 'reading-card' + (i===0 ? ' active' : ' locked');
     cardDiv.id = 'rcard-' + i;
-    cardDiv.style.cssText = '--card-colour:' + colour + '; width:' + cardWpx + '; height:' + cardHpx + '; perspective:900px; flex-shrink:0;';
+    cardDiv.style.cssText = '--card-colour:' + colour + '; width:120px; height:190px; perspective:900px; flex-shrink:0;';
 
     cardDiv.innerHTML =
-      '<div class="card-inner" id="card-inner-' + i + '" style="width:' + cardWpx + ';height:' + cardHpx + ';">' +
-        '<div class="card-face card-back" onclick="flipCard(' + i + ')" style="border-color:' + colour + '">' +
-          '<div class="card-sigil" style="color:' + colour + ';font-size:' + sigilSz + '">' + typeSigilMap[card.type] + '</div>' +
-          '<p class="card-house-name" style="color:' + colour + ';font-size:' + hnSz + '">' + typeLabels[card.type] + '</p>' +
-          (i===0 ? '<p class="card-tap-hint" style="font-size:' + hintSz + '">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
+      '<div class="card-inner" id="card-inner-'+i+'" style="width:120px;height:190px;">' +
+        '<div class="card-face card-back" onclick="flipCard('+i+')" style="border-color:'+colour+'">' +
+          '<div class="card-sigil" style="color:'+colour+'">'+typeSigilMap[card.type]+'</div>' +
+          '<p class="card-house-name" style="color:'+colour+'">'+typeLabels[card.type]+'</p>' +
+          (i===0 ? '<p class="card-tap-hint">Tap to reveal</p>' : '<p class="card-tap-hint locked-hint">·</p>') +
         '</div>' +
-        '<div class="card-face card-front" style="padding:' + cellPad + '; border-color:' + colour + '">' +
-          '<div id="cimg-' + i + '"></div>' +
-          '<p class="card-being-name" style="color:' + colour + ';font-size:' + nameSz + ';line-height:1.2;" id="cname-' + i + '">' + card.name + '</p>' +
-          '<p class="card-keyword" style="font-size:' + kwSz + ';margin-bottom:.2rem;" id="ckw-' + i + '">' + card.keyword + '</p>' +
-          '<button class="card-transmission-btn" style="color:' + colour + ';font-size:' + btnSz + ';" onclick="openReadingBeing(' + i + ')">Full Transmission ↓</button>' +
+        '<div class="card-face card-front" style="padding:.5rem; border-color:'+colour+'">' +
+          '<div id="cimg-'+i+'"></div>' +
+          '<p class="card-being-name" style="color:'+colour+';font-size:.88rem;line-height:1.2;" id="cname-'+i+'">'+card.name+'</p>' +
+          '<p class="card-keyword" style="font-size:.74rem;margin-bottom:.3rem;" id="ckw-'+i+'">'+card.keyword+'</p>' +
+          '<button class="card-transmission-btn" style="color:'+colour+';font-size:.4rem;" onclick="openReadingBeing('+i+')">Full Transmission ↓</button>' +
         '</div>' +
       '</div>';
 
     var label = document.createElement('p');
-    label.style.cssText = 'font-family:Cinzel,serif; font-size:' + labelSz + '; letter-spacing:.1em; text-transform:uppercase; color:' + colour + '; text-align:center; line-height:1.5; max-width:' + labelMax + 'px; opacity:.9;';
+    label.className = 'lj-label';
+    label.style.cssText = 'font-family:Cinzel,serif; font-size:.52rem; letter-spacing:.13em; text-transform:uppercase; color:'+colour+'; text-align:center; line-height:1.5; max-width:125px; opacity:.9;';
     label.textContent = pos.label;
 
     cell.appendChild(cardDiv);
@@ -3759,14 +3738,33 @@ function renderLifeJourney() {
     '<button class="reading-action-btn close-btn" onclick="closeReading()">&#10005; Close Reading</button>';
   spread.appendChild(btns);
 
-  // Load images
+  // Load images at natural size first
   var typeColourMap = {master:'var(--gold)', angel:'var(--sapphire)', crystal:'var(--teal)'};
   readingCards.forEach(function(card, i) {
     var imgSrc = beingImages[card.name];
     if (imgSrc) {
-      var imgDiv = document.getElementById('cimg-' + i);
-      if (imgDiv) imgDiv.innerHTML = '<img src="' + imgSrc + '" style="width:100%;height:auto;max-height:' + imgMaxH + 'px;object-fit:contain;border-radius:2px;margin-bottom:.3rem;border-bottom:1px solid ' + typeColourMap[card.type] + '" alt="' + card.name + '">';
+      var imgDiv = document.getElementById('cimg-'+i);
+      if (imgDiv) imgDiv.innerHTML = '<img src="'+imgSrc+'" style="width:100%;height:auto;max-height:95px;object-fit:contain;border-radius:2px;margin-bottom:.4rem;border-bottom:1px solid '+typeColourMap[card.type]+'" alt="'+card.name+'">';
     }
+  });
+
+  // After DOM settles, scale the grid down on small screens
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      var gridEl  = document.getElementById('lj-grid');
+      var outerEl = document.getElementById('lj-outer');
+      if (!gridEl || !outerEl) return;
+      var availW   = outerEl.getBoundingClientRect().width;
+      var naturalW = gridEl.scrollWidth;
+      var naturalH = gridEl.scrollHeight;
+      if (availW > 0 && naturalW > availW) {
+        var scale = availW / naturalW;
+        // Shrink the outer to the scaled size so no scroll appears
+        outerEl.style.cssText = 'display:block; margin:0 auto; overflow:hidden; width:' + Math.round(naturalW * scale) + 'px; height:' + Math.round(naturalH * scale) + 'px;';
+        gridEl.style.transformOrigin = 'top left';
+        gridEl.style.transform = 'scale(' + scale + ')';
+      }
+    });
   });
 }
 
