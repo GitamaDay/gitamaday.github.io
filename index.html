@@ -3666,10 +3666,11 @@ function renderLifeJourney() {
   var typeSigilMap = {master:lineageSigils[0], angel:lineageSigils[1], crystal:lineageSigils[2]};
   var typeLabels   = {master:'Ascended Master', angel:'Angel', crystal:'Crystal Spirit'};
 
-  // Responsive sizing — grid must fit the viewport
-  var vw       = window.innerWidth;
-  var isMobile = vw < 600;
-  var available = Math.max(vw - 64, 200);
+  // Responsive sizing — measure the actual rendered container width
+  var spreadEl = document.getElementById('reading-spread');
+  var spreadW  = (spreadEl && spreadEl.offsetWidth > 0) ? spreadEl.offsetWidth : window.innerWidth;
+  var isMobile = spreadW < 600;
+  var available = Math.max(spreadW, 200);
   var colPx    = isMobile ? Math.floor((available - 32) / 5) : 130;
   var cardW    = Math.min(colPx - 2, isMobile ? colPx : 120);
   var cardH    = Math.round(cardW * 1.58);
