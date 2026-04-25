@@ -762,17 +762,31 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   font-style: italic;
   color: var(--ink-muted);
 }
-.journal-entry-delete {
+.journal-entry-chevron {
+  font-size: 1rem;
+  color: var(--gold);
+  opacity: .5;
+  transition: transform .25s, opacity .2s;
+  pointer-events: none;
+  user-select: none;
+}
+.journal-entry-chevron.open { transform: rotate(90deg); opacity: .8; }
+.journal-delete-btn {
+  display: block;
+  margin-top: 1rem;
   background: none;
   border: none;
+  font-family: 'Cinzel', serif;
+  font-size: .44rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
   color: var(--ink-muted);
   opacity: .4;
   cursor: pointer;
-  font-size: .85rem;
-  padding: 0 .3rem;
-  transition: opacity .2s;
+  padding: .3rem 0;
+  transition: opacity .2s, color .2s;
 }
-.journal-entry-delete:hover { opacity: 1; color: #c06060; }
+.journal-delete-btn:hover { opacity: 1; color: #c06060; }
 .journal-entry-body {
   display: none;
   padding: 1rem;
@@ -4140,7 +4154,7 @@ function drawSingle(type) {
   cardDiv.id = 'rcard-0';
   cardDiv.style.cssText = '--card-colour:' + colour + '; width:200px; height:auto; perspective:900px;';
   cardDiv.innerHTML =
-    '<div class="card-inner" id="card-inner-0" style="width:200px;">' +
+    '<div class="card-inner" id="card-inner-0" style="width:200px;height:365px;">' +
       '<div class="card-face card-back" onclick="flipCard(0)" style="border-color:' + colour + '; height:300px;">' +
         '<div class="card-sigil" style="color:' + colour + '">' + sigil + '</div>' +
         '<p class="card-house-name" style="color:' + colour + '">' + label + '</p>' +
@@ -4169,7 +4183,7 @@ function drawSingle(type) {
   var imgSrc = beingImages[card.name];
   if (imgSrc) {
     var imgDiv = document.getElementById('cimg-0');
-    if (imgDiv) imgDiv.innerHTML = '<img src="' + imgSrc + '" style="width:100%;height:auto;border-radius:3px;margin-bottom:.6rem;border-bottom:1px solid ' + colour + '" alt="' + card.name + '">';
+    if (imgDiv) imgDiv.innerHTML = '<img src="' + imgSrc + '" style="width:100%;max-height:210px;object-fit:contain;display:block;border-radius:3px;margin-bottom:.6rem;border-bottom:1px solid ' + colour + '" alt="' + card.name + '">';
   }
 
   spread.scrollIntoView({behavior:'smooth'});
@@ -4677,13 +4691,14 @@ function renderJournal() {
     div.innerHTML =
       '<div class="journal-entry-header" onclick="toggleJournalEntry(' + realIdx + ')">' +
         '<span class="journal-entry-date">' + entry.date + ' &nbsp;·&nbsp; ' + entry.layout + '</span>' +
-        '<button class="journal-entry-delete" onclick="event.stopPropagation();deleteJournalEntry(' + realIdx + ')" title="Delete">✕</button>' +
+        '<span class="journal-entry-chevron" id="jchev-' + realIdx + '">›</span>' +
       '</div>' +
       '<div class="journal-entry-body" id="jbody-' + realIdx + '">' +
         '<div class="journal-beings">' + beingsHtml + '</div>' +
         '<span class="journal-notes-label">My Notes</span>' +
         '<textarea class="journal-notes" id="jnotes-' + realIdx + '" placeholder="Write your reflections here...">' + (entry.notes || '') + '</textarea>' +
         '<button class="journal-save-note" onclick="saveJournalNote(' + realIdx + ')">Save Note</button>' +
+        '<button class="journal-delete-btn" onclick="confirmDeleteEntry(' + realIdx + ')">✕ Delete this entry</button>' +
       '</div>';
 
     container.appendChild(div);
@@ -4692,7 +4707,15 @@ function renderJournal() {
 
 function toggleJournalEntry(idx) {
   var body = document.getElementById('jbody-' + idx);
+  var chev = document.getElementById('jchev-' + idx);
   if (body) body.classList.toggle('open');
+  if (chev) chev.classList.toggle('open');
+}
+
+function confirmDeleteEntry(idx) {
+  if (confirm('Delete this journal entry? This cannot be undone.')) {
+    deleteJournalEntry(idx);
+  }
 }
 
 function deleteJournalEntry(idx) {
