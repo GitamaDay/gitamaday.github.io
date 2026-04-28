@@ -320,7 +320,7 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   transform: rotateY(180deg);
   box-shadow: 0 0 28px rgba(0,0,0,.7);
   justify-content: flex-start;
-  padding: .8rem .8rem 1rem;
+  padding: .8rem .8rem 4.5rem;
   overflow: hidden;
 }
 .card-sigil { margin-bottom: .8rem; opacity: .85; }
@@ -347,20 +347,24 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   font-family: 'EB Garamond', serif;
   font-size: .78rem;
   font-style: italic;
-  color: var(--ink-muted);
+  color: var(--ink);
   margin-top: 1.2rem;
-  opacity: .6;
+  opacity: .92;
 }
 .card-revealed-img {
-  width: 100%;
+  max-width: 100%;
+  max-height: 200px;
+  width: auto;
   height: auto;
   display: block;
+  margin: 0 auto .9rem;
   border-radius: 3px 3px 0 0;
-  margin-bottom: .9rem;
   border-bottom: 1px solid var(--card-colour, var(--gold));
   opacity: .9;
 }
 .card-img-wrap { width: 100%; }
+.chakra-card .card-revealed-img { max-height: 80px !important; }
+.chakra-card .card-face { padding: .3rem .3rem .2rem !important; }
 .card-being-name {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.15rem;
@@ -384,15 +388,21 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   font-size: .46rem;
   letter-spacing: .2em;
   text-transform: uppercase;
+  color: var(--card-colour, var(--gold));
   cursor: pointer;
-  opacity: .8;
+  opacity: 1;
   transition: opacity .2s;
-  padding: .6rem .5rem;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  min-height: 44px;
+  position: absolute;
+  bottom: .6rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: .4rem .3rem;
+  min-height: 36px;
 }
-.card-transmission-btn:hover { opacity: 1; }
+.card-transmission-btn:hover { opacity: .8; }
 #reading-btns {
   width: 100%;
   display: flex;
@@ -1986,6 +1996,43 @@ This work — the Ascended Masters, the Angels, the Crystal Spirits — never fe
 
 <script>
 // ============================================================
+// SOFT CLICK SOUND — Web Audio API, no files needed
+// ============================================================
+var _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx || _audioCtx.state === 'closed') {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+// iOS requires AudioContext to be created/resumed inside a user gesture
+// Unlock on first touch so subsequent clicks are instant
+function unlockAudio() {
+  getAudioCtx();
+  document.removeEventListener('touchstart', unlockAudio);
+  document.removeEventListener('mousedown', unlockAudio);
+}
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('mousedown', unlockAudio, { once: true });
+function playClick() {
+  try {
+    var ctx = getAudioCtx();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1200, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.012);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.015);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.015);
+  } catch(e) {}
+}
+
+// ============================================================
 // BEING NAME COLOURS — dominant colour from each sigil
 // ============================================================
 var beingNameColors = {
@@ -3057,6 +3104,7 @@ var beingMeditations = {
 };
 
 function openBeing(type, name, desc) {
+  playClick();
   var parts = desc.split(' · ');
   var keyword = parts[0] || '';
   var body    = parts[1] || desc;
@@ -3180,6 +3228,7 @@ function openBeing(type, name, desc) {
 
 function closeModal(e) {
   if (!e || e.target === document.getElementById('modal')) {
+    playClick();
     document.getElementById('modal').classList.remove('open');
   }
 }
@@ -3574,6 +3623,7 @@ var flipSequence = null;
 var flipStep = 0;
 
 function flipCard(i) {
+  playClick();
   // Helper: unlock next card and scroll it into view
   function activateNext(nextEl) {
     if (!nextEl) return;
@@ -4297,7 +4347,7 @@ function renderChakra(layoutName) {
     var ci = chakra.cardIdx;
     var isFirst = (ci === 0);
     var cardDiv = document.createElement('div');
-    cardDiv.className = 'reading-card' + (isFirst ? ' active' : ' locked');
+    cardDiv.className = 'reading-card chakra-card' + (isFirst ? ' active' : ' locked');
     cardDiv.id = 'rcard-' + ci;
     cardDiv.style.cssText = '--card-colour:' + colour + '; width:100px; height:155px; perspective:900px; flex-shrink:0;';
     cardDiv.innerHTML =
@@ -4311,7 +4361,7 @@ function renderChakra(layoutName) {
           '<div id="cimg-' + ci + '"></div>' +
           '<p class="card-being-name" style="color:' + colour + '; font-size:.9rem; line-height:1.2;" id="cname-' + ci + '">' + card.name + '</p>' +
           '<p class="card-keyword" style="font-size:.75rem;" id="ckw-' + ci + '">' + card.keyword + '</p>' +
-          '<button class="card-transmission-btn" style="color:' + colour + '; font-size:.42rem;" onclick="openReadingBeing(' + ci + ')">Full Message ↓</button>' +
+          '<button class="card-transmission-btn" style="color:' + colour + '; font-size:.42rem; min-height:28px; padding:.2rem .4rem;" onclick="openReadingBeing(' + ci + ')">Full Transmission ↓</button>' +
         '</div>' +
       '</div>';
 
@@ -4403,7 +4453,7 @@ function renderPlanetary(layoutName) {
           '<div id="cimg-' + i + '"></div>' +
           '<p class="card-being-name" style="color:' + colour + '; font-size:.9rem; line-height:1.2;" id="cname-' + i + '">' + card.name + '</p>' +
           '<p class="card-keyword" style="font-size:.75rem;" id="ckw-' + i + '">' + card.keyword + '</p>' +
-          '<button class="card-transmission-btn" style="color:' + colour + '; font-size:.42rem;" onclick="openReadingBeing(' + i + ')">Full Message ↓</button>' +
+          '<button class="card-transmission-btn" style="color:' + colour + '; font-size:.42rem;" onclick="openReadingBeing(' + i + ')">Full Transmission ↓</button>' +
         '</div>' +
       '</div>';
 
