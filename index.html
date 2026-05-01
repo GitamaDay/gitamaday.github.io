@@ -3385,6 +3385,7 @@ function startReading(name) {
 
 // ── DRAW FOR ME ────────────────────────────────────────────
 function beginDrawReading() {
+  cardImageData = {};
   var cfg = fanState.config;
   readingCards = [];
   function pickN(deck, n) {
@@ -3609,18 +3610,18 @@ function renderSpread() {
     '<button class="reading-action-btn close-btn" onclick="closeReading()">\u2715 Close Reading</button>';
   spread.appendChild(btns);
 
+  // Store images for lazy loading at flip time
   readingCards.forEach(function(card, i) {
     var imgSrc = beingImages[card.name];
-    if (imgSrc) {
-      var imgDiv = document.getElementById('cimg-'+i);
-      imgDiv.innerHTML = '<img src="'+imgSrc+'" class="card-revealed-img" alt="'+card.name+'">';
-    }
+    if (imgSrc) cardImageData[i] = '<img src="'+imgSrc+'" class="card-revealed-img" alt="'+card.name+'">';
   });
 }
 
 // flipSequence — null means default sequential order
 var flipSequence = null;
 var flipStep = 0;
+// Lazy image store — populated at render time, injected at flip time
+var cardImageData = {};
 
 function flipCard(i) {
   playClick();
@@ -3641,6 +3642,8 @@ function flipCard(i) {
     // Sequence mode — Life Aspect pairs
     if (flipSequence[flipStep] !== i) return;
     document.getElementById('card-inner-'+i).classList.add('flipped');
+    // Lazy-load image at flip time
+    (function(){ var d=document.getElementById('cimg-'+i); if(d&&cardImageData[i]&&!d.querySelector('img')) d.innerHTML=cardImageData[i]; })();
     flipStep++;
     if (flipStep < flipSequence.length) {
       activateNext(document.getElementById('rcard-'+flipSequence[flipStep]));
@@ -3649,6 +3652,8 @@ function flipCard(i) {
     // Default sequential mode
     if (i !== currentFlip) return;
     document.getElementById('card-inner-'+i).classList.add('flipped');
+    // Lazy-load image at flip time
+    (function(){ var d=document.getElementById('cimg-'+i); if(d&&cardImageData[i]&&!d.querySelector('img')) d.innerHTML=cardImageData[i]; })();
     currentFlip++;
     if (currentFlip < readingCards.length) {
       activateNext(document.getElementById('rcard-'+currentFlip));
@@ -3749,13 +3754,10 @@ function renderMindBodySoul() {
   spread.appendChild(wrap);
   spread.appendChild(btns);
 
-  // Load images
+  // Store images for lazy loading at flip time
   readingCards.forEach(function(card, i) {
     var imgSrc = beingImages[card.name];
-    if (imgSrc) {
-      var imgDiv = document.getElementById('cimg-'+i);
-      if (imgDiv) imgDiv.innerHTML = '<img src="'+imgSrc+'" class="card-revealed-img" alt="'+card.name+'">';
-    }
+    if (imgSrc) cardImageData[i] = '<img src="'+imgSrc+'" class="card-revealed-img" alt="'+card.name+'">';
   });
 }
 
@@ -3886,13 +3888,11 @@ function renderLifeJourney() {
     '<button class="reading-action-btn close-btn" onclick="closeReading()">&#10005; Close Reading</button>';
   spread.appendChild(btns);
 
+  // Store images for lazy loading at flip time
   var typeColourMap = {master:'var(--gold)', angel:'var(--sapphire)', crystal:'var(--teal)'};
   readingCards.forEach(function(card, i) {
     var imgSrc = beingImages[card.name];
-    if (imgSrc) {
-      var imgDiv = document.getElementById('cimg-'+i);
-      if (imgDiv) imgDiv.innerHTML = '<img src="'+imgSrc+'" style="width:100%;height:auto;max-height:'+imgMaxH+'px;object-fit:contain;border-radius:2px;margin-bottom:.4rem;border-bottom:1px solid '+typeColourMap[card.type]+'" alt="'+card.name+'">';
-    }
+    if (imgSrc) cardImageData[i] = '<img src="'+imgSrc+'" style="width:100%;height:auto;max-height:'+imgMaxH+'px;object-fit:contain;border-radius:2px;margin-bottom:.4rem;border-bottom:1px solid '+typeColourMap[card.type]+'" alt="'+card.name+'">';
   });
 }
 
@@ -4050,13 +4050,12 @@ function renderLifeAspect() {
     '<button class="reading-action-btn close-btn" onclick="closeReading()">✕ Close Reading</button>';
   spread.appendChild(btns);
 
-  // Load all images
+  // Store images for lazy loading at flip time
   readingCards.forEach(function(card, i) {
     var imgSrc = beingImages[card.name];
     if (imgSrc) {
-      var imgDiv = document.getElementById('cimg-'+i);
       var colour = {master:'var(--gold)',angel:'var(--sapphire)',crystal:'var(--teal)'}[card.type];
-      if (imgDiv) imgDiv.innerHTML = '<img src="'+imgSrc+'" style="width:100%;height:auto;max-height:80px;object-fit:contain;border-radius:2px;margin-bottom:.3rem;border-bottom:1px solid '+colour+'" alt="'+card.name+'">';
+      cardImageData[i] = '<img src="'+imgSrc+'" style="width:100%;height:auto;max-height:80px;object-fit:contain;border-radius:2px;margin-bottom:.3rem;border-bottom:1px solid '+colour+'" alt="'+card.name+'">';
     }
   });
 }
@@ -4219,13 +4218,12 @@ function renderNineGrid(titleText, posLabels, layoutName) {
     '<button class="reading-action-btn close-btn" onclick="closeReading()">✕ Close Reading</button>';
   spread.appendChild(btns);
 
-  // Load images
+  // Store images for lazy loading at flip time
   readingCards.forEach(function(card, i) {
     var imgSrc = beingImages[card.name];
     if (imgSrc) {
-      var imgDiv = document.getElementById('cimg-'+i);
       var col = {master:'var(--gold)',angel:'var(--sapphire)',crystal:'var(--teal)'}[card.type];
-      if (imgDiv) imgDiv.innerHTML = '<img src="'+imgSrc+'" style="width:100%;height:auto;max-height:80px;object-fit:contain;border-radius:2px;margin-bottom:.3rem;border-bottom:1px solid '+col+'" alt="'+card.name+'">';
+      cardImageData[i] = '<img src="'+imgSrc+'" style="width:100%;height:auto;max-height:80px;object-fit:contain;border-radius:2px;margin-bottom:.3rem;border-bottom:1px solid '+col+'" alt="'+card.name+'">';
     }
   });
 }
@@ -4385,12 +4383,10 @@ function renderChakra(layoutName) {
     '<button class="reading-action-btn close-btn" onclick="closeReading()">✕ Close Reading</button>';
   spread.appendChild(btns);
 
+  // Store images for lazy loading at flip time
   readingCards.forEach(function(card, i) {
     var imgSrc = beingImages[card.name];
-    if (imgSrc) {
-      var imgDiv = document.getElementById('cimg-' + i);
-      if (imgDiv) imgDiv.innerHTML = '<img src="' + imgSrc + '" style="width:100%;height:auto;max-height:70px;object-fit:contain;border-radius:2px;margin-bottom:.3rem;border-bottom:1px solid ' + colour + '" alt="' + card.name + '">';
-    }
+    if (imgSrc) cardImageData[i] = '<img src="' + imgSrc + '" style="width:100%;height:auto;max-height:70px;object-fit:contain;border-radius:2px;margin-bottom:.3rem;border-bottom:1px solid ' + colour + '" alt="' + card.name + '">';
   });
 }
 
@@ -4483,12 +4479,10 @@ function renderPlanetary(layoutName) {
     '<button class="reading-action-btn close-btn" onclick="closeReading()">✕ Close Reading</button>';
   spread.appendChild(btns);
 
+  // Store images for lazy loading at flip time
   readingCards.forEach(function(card, i) {
     var imgSrc = beingImages[card.name];
-    if (imgSrc) {
-      var imgDiv = document.getElementById('cimg-' + i);
-      if (imgDiv) imgDiv.innerHTML = '<img src="' + imgSrc + '" style="width:100%;height:auto;max-height:75px;object-fit:contain;border-radius:2px;margin-bottom:.3rem;border-bottom:1px solid ' + colour + '" alt="' + card.name + '">';
-    }
+    if (imgSrc) cardImageData[i] = '<img src="' + imgSrc + '" style="width:100%;height:auto;max-height:75px;object-fit:contain;border-radius:2px;margin-bottom:.3rem;border-bottom:1px solid ' + colour + '" alt="' + card.name + '">';
   });
 }
 
