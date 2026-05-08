@@ -4347,9 +4347,9 @@ function renderChakra(layoutName) {
     var cardDiv = document.createElement('div');
     cardDiv.className = 'reading-card chakra-card' + (isFirst ? ' active' : ' locked');
     cardDiv.id = 'rcard-' + ci;
-    cardDiv.style.cssText = '--card-colour:' + colour + '; width:100px; height:155px; perspective:900px; flex-shrink:0;';
+    cardDiv.style.cssText = '--card-colour:' + colour + '; width:100px; height:210px; perspective:900px; flex-shrink:0;';
     cardDiv.innerHTML =
-      '<div class="card-inner" id="card-inner-' + ci + '" style="width:100px;height:155px;">' +
+      '<div class="card-inner" id="card-inner-' + ci + '" style="width:100px;height:210px;">' +
         '<div class="card-face card-back" onclick="flipCard(' + ci + ')" style="border-color:' + colour + '">' +
           '<div style="color:' + colour + '; margin-bottom:.4rem; font-size:1.5rem;">' + sigil + '</div>' +
           '<p class="card-house-name" style="color:' + colour + '; font-size:.5rem;">' + label + '</p>' +
