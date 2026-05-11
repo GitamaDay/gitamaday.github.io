@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Illuminated Reflections · Links</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #D4B07A;
+  --gold-dim: #9a7a50;
+  --angel-blue: #8BB8F0;
+  --teal: #6EC4B8;
+  --rose: #D4889A;
+  --bg: #09090e;
+  --text: #f0e8d8;
+  --text-dim: #b8a888;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'EB Garamond', serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+/* STARS */
+.stars { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.star {
+  position:absolute; width:2px; height:2px;
+  background:var(--gold); border-radius:50%; opacity:0;
+  animation: twinkle var(--dur) ease-in-out infinite var(--delay);
+}
+@keyframes twinkle { 0%,100% { opacity:0; } 50% { opacity:0.4; } }
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* SIGIL */
+.sigil {
+  width: min(180px, 50vw);
+  margin-bottom: 28px;
+  animation: logoBreath 6s ease-in-out infinite;
+}
+@keyframes logoBreath { 0%,100% { opacity:1; } 50% { opacity:0.88; } }
+
+.title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  color: var(--gold);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+.subtitle {
+  font-size: clamp(0.8rem, 2.2vw, 1rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.author {
+  font-size: clamp(0.78rem, 2vw, 0.92rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--rose);
+  margin-bottom: 40px;
+}
+
+.divider {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin-bottom: 40px;
+}
+
+/* LINKS */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.link-btn {
+  display: block;
+  width: 100%;
+  padding: 20px 28px;
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 4px;
+  background: rgba(201,169,110,0.04);
+  color: var(--text);
+  text-decoration: none;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.85rem, 2.4vw, 1rem);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.link-btn:hover {
+  border-color: rgba(201,169,110,0.7);
+  background: rgba(201,169,110,0.1);
+  color: var(--gold);
+}
+.link-btn .btn-label {
+  display: block;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.link-btn .btn-desc {
+  display: block;
+  font-family: 'EB Garamond', serif;
+  font-size: clamp(1rem, 2.8vw, 1.2rem);
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: var(--text);
+  font-style: italic;
+}
+
+.link-btn.gold { border-color: rgba(201,169,110,0.5); }
+.link-btn.blue { border-color: rgba(107,159,232,0.4); }
+.link-btn.blue .btn-label { color: var(--angel-blue); }
+.link-btn.teal { border-color: rgba(78,173,160,0.4); }
+.link-btn.teal .btn-label { color: var(--teal); }
+
+.footer {
+  margin-top: 48px;
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0.8;
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="container">
+
+  <div class="title">Illuminated Reflections</div>
+  <div class="subtitle">A Sacred Oracle of Light · Three Lineages, One Portal</div>
+  <div class="author">Gitama Day</div>
+
+  <div class="divider"></div>
+
+  <div class="links">
+
+    <a class="link-btn gold" href="https://gitamaday.github.io/illuminated-reflections/" target="_blank">
+      <span class="btn-label">✦ Free Daily Card Reading</span>
+      <span class="btn-desc">A glimpse into the oracle — draw your card from a selected 9 cards from each lineage</span>
+    </a>
+
+    <a class="link-btn blue" href="https://apps.apple.com/au/app/illuminated-reflections/id6765599954" target="_blank">
+      <span class="btn-label">✦ Download on the App Store</span>
+      <span class="btn-desc">Full app for iPhone & iPad — 91 beings, eight reading layouts</span>
+    </a>
+
+    <a class="link-btn teal" href="https://play.google.com/store" target="_blank">
+      <span class="btn-label">✦ Coming Soon on Google Play</span>
+      <span class="btn-desc">Android app arriving soon</span>
+    </a>
+
+  </div>
+
+  <div class="footer">29 Ascended Masters · 29 Angels · 33 Crystal Spirits</div>
+
+</div>
+
+<script>
+// Stars
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 60; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${3+Math.random()*5}s;--delay:${Math.random()*6}s`;
+  starsEl.appendChild(s);
+}
+</script>
+</body>
+</html>
