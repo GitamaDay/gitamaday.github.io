@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /index.html
+Disallow: /reading.html
+Disallow: /KEEP THISilluminated-reflections-v10(6).html
